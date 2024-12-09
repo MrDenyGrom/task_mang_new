@@ -62,6 +62,22 @@
     ```
 3. Дождитесь, пока все контейнеры будут запущены.
 
+В случае ошибки:  
+    
+    ```json
+    [backend 6/9] RUN ./mvnw dependency:go-offline
+    
+     > [backend 6/9] RUN ./mvnw dependency:go-offline:
+    : not foundw: line 20:
+    : not foundw: line 31:
+    0.266 ./mvnw: set: line 32: illegal option -
+    
+    failed to solve: process "/bin/sh -c ./mvnw dependency:go-offline" did not complete successfully: exit code: 2
+    ```
+    
+Скорее всего неправильно установились mvnw и mvnw.cmd. Тогда зайдите в архив и перекиньте в корневую папку проекта те файлы которые там есть и снова попробуйте `docker-compose up --build`.
+
+
 4. Открытие Swagger UI
     После успешного запуска приложения, вы можете зайти в Swagger UI по следующему адресу:
     http://localhost:8080/swagger-ui.html
