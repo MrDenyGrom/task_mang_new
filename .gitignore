@@ -1,0 +1,4 @@
+postgres_password.txt
+jwt_secret.txt
+postgres_user.txt
+.env
