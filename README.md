@@ -62,7 +62,7 @@
     ```
 3. Дождитесь, пока все контейнеры будут запущены.
 
-В случае ошибки:  
+   В случае ошибки:  
     
     ```json
     [backend 6/9] RUN ./mvnw dependency:go-offline
@@ -75,7 +75,7 @@
     failed to solve: process "/bin/sh -c ./mvnw dependency:go-offline" did not complete successfully: exit code: 2
     ```
     
-Скорее всего неправильно установились mvnw и mvnw.cmd. Тогда зайдите в архив и перекиньте в корневую папку проекта те файлы которые там есть и снова попробуйте `docker-compose up --build`.
+   Скорее всего неправильно установились mvnw и mvnw.cmd. Тогда зайдите в архив и перекиньте в корневую папку проекта те файлы которые там есть и снова попробуйте `docker-compose up --build`.
 
 
 4. Открытие Swagger UI
