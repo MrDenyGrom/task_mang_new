@@ -64,7 +64,7 @@
 
    В случае ошибки:  
     
-    ```json
+    ```bash
     [backend 6/9] RUN ./mvnw dependency:go-offline
     
      > [backend 6/9] RUN ./mvnw dependency:go-offline:
