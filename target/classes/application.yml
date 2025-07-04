@@ -1,0 +1,129 @@
+# ===============================================================
+# =      SPRING BOOT - ОБЩАЯ КОНФИГУРАЦИЯ                       =
+# ===============================================================
+spring:
+  config:
+    import: "optional:dotenv[.env]"
+  application:
+    name: Task-Manager-Api
+
+  # --- Профили ---
+  profiles:
+    active: dev
+
+  # --- Настройки базы данных (Datasource) ---
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/task_manager_db}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    # Настройки пула соединений HikariCP
+    hikari:
+      connection-timeout: 30000  # 30 секунд
+      maximum-pool-size: 10
+      pool-name: TaskManagerHikariPool
+
+  # --- Настройки JPA и Hibernate ---
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  # --- Настройки сериализации/десериализации JSON ---
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: UTC
+    default-property-inclusion: non_null
+
+  # --- Настройки для асинхронных задач (@Async) ---
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 10
+        queue-capacity: 100
+      thread-name-prefix: async-task-
+
+  # --- Настройки для загрузки файлов ---
+  servlet:
+    multipart:
+      max-file-size: 25MB
+      max-request-size: 25MB
+
+# ===============================================================
+# =      НАСТРОЙКИ СЕРВЕРА                                      =
+# ===============================================================
+server:
+  port: ${PORT:8080}
+  servlet:
+    session:
+      timeout: 30m
+  error:
+    include-stacktrace: on_param
+    include-message: always
+
+# ===============================================================
+# =      ЛОГИРОВАНИЕ                                            =
+# ===============================================================
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.security: INFO
+    com.example.taskmanagement: DEBUG
+  file:
+    name: logs/task-manager-api.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# ===============================================================
+# =      СПЕЦИФИЧНЫЕ НАСТРОЙКИ ПРИЛОЖЕНИЯ (app.)                =
+# ===============================================================
+app:
+  # --- Настройки CORS ---
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+    allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
+    allowed-headers: '*'
+    allow-credentials: true
+
+# --- Настройки JWT ---
+jwt:
+  secret: ${JWT_SECRET_KEY}
+  expiration: 3600000             # 1 час
+  refresh-expiration-ms: 86400000 # 24 часа
+  header-string: Authorization
+  token-prefix: "Bearer "
+  user-claim: role
+
+---
+
+# ===============================================================
+# =      ПРОФИЛЬ ДЛЯ ПРОДАКШЕНА (prod)                          =
+# ===============================================================
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+logging:
+  level:
+    root: INFO
+    com.example.taskmanagement: INFO
+
+server:
+  error:
+    include-stacktrace: never

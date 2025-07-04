@@ -1,28 +1,77 @@
+version: '3.8'
+
 services:
+  # -------------------
+  # Сервис приложения (Backend)
+  # -------------------
   backend:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: task-manager-backend
+    restart: unless-stopped
     ports:
+      # Проброс порта 8080 контейнера на порт 8080 хост-машины
       - "8080:8080"
+    networks:
+      - task-manager-net
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy # Backend начнет стартовать только после того, как postgres пройдет healthcheck
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/task_manger_db
-      - SPRING_DATASOURCE_USERNAME=Userr
-      - SPRING_DATASOURCE_PASSWORD=12345
+      # --- Активный профиль Spring Boot ---
+      - SPRING_PROFILES_ACTIVE=prod
+
+      # --- Настройки подключения к базе данных ---
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/task_manager_db
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+
+      # --- Настройки JWT ---
       - JWT_SECRET=${JWT_SECRET}
-      - JWT_EXPIRATION=36000000
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
+      # Проверка состояния приложения через Actuator
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
       interval: 30s
       timeout: 10s
-      retries: 3
+      retries: 5
+      start_period: 30s
+
+    env_file:
+      - .env
+
+  # -------------------
+  # Сервис базы данных (PostgreSQL)
+  # -------------------
   postgres:
-    image: postgres:16
+    image: postgres:16-alpine
+    container_name: task-manager-postgres
+    restart: unless-stopped
     environment:
-      - POSTGRES_USER=Userr
-      - POSTGRES_PASSWORD=12345
-      - POSTGRES_DB=task_manger_db
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=task_manager_db
     ports:
       - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - task-manager-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d task_manager_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+# ---
+# Определение ресурсов (сети и тома)
+# ---
+networks:
+  task-manager-net:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local

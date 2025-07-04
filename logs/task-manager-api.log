@@ -1,0 +1,38 @@
+2025-07-05 01:00:44.853 [main] INFO  c.e.t.TaskManagementApplication - Starting TaskManagementApplication using Java 17.0.15 with PID 21448 (D:\hacker\java\task_mang_new\target\classes started by MrDenyGrom in D:\hacker\java\task_mang_new)
+2025-07-05 01:00:44.855 [main] DEBUG c.e.t.TaskManagementApplication - Running with Spring Boot v3.3.5, Spring v6.1.14
+2025-07-05 01:00:44.855 [main] INFO  c.e.t.TaskManagementApplication - The following 1 profile is active: "dev"
+2025-07-05 01:00:45.593 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2025-07-05 01:00:45.637 [main] INFO  o.s.d.r.c.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 37 ms. Found 3 JPA repository interfaces.
+2025-07-05 01:00:46.147 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-07-05 01:00:46.154 [main] INFO  o.a.catalina.core.StandardService - Starting service [Tomcat]
+2025-07-05 01:00:46.154 [main] INFO  o.a.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.31]
+2025-07-05 01:00:46.204 [main] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring embedded WebApplicationContext
+2025-07-05 01:00:46.204 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1305 ms
+2025-07-05 01:00:46.388 [main] INFO  o.h.jpa.internal.util.LogHelper - HHH000204: Processing PersistenceUnitInfo [name: default]
+2025-07-05 01:00:46.428 [main] INFO  org.hibernate.Version - HHH000412: Hibernate ORM core version 6.5.3.Final
+2025-07-05 01:00:46.453 [main] INFO  o.h.c.i.RegionFactoryInitiator - HHH000026: Second-level cache disabled
+2025-07-05 01:00:46.650 [main] INFO  o.s.o.j.p.SpringPersistenceUnitInfo - No LoadTimeWeaver setup: ignoring JPA class transformer
+2025-07-05 01:00:46.672 [main] INFO  com.zaxxer.hikari.HikariDataSource - TaskManagerHikariPool - Starting...
+2025-07-05 01:00:46.896 [main] INFO  com.zaxxer.hikari.pool.HikariPool - TaskManagerHikariPool - Added connection org.postgresql.jdbc.PgConnection@4790b897
+2025-07-05 01:00:46.898 [main] INFO  com.zaxxer.hikari.HikariDataSource - TaskManagerHikariPool - Start completed.
+2025-07-05 01:00:46.923 [main] WARN  org.hibernate.orm.deprecation - HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2025-07-05 01:00:47.588 [main] INFO  o.h.e.t.j.p.i.JtaPlatformInitiator - HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2025-07-05 01:00:47.642 [main] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Initialized JPA EntityManagerFactory for persistence unit 'default'
+2025-07-05 01:00:47.873 [main] DEBUG c.e.t.s.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2025-07-05 01:00:47.912 [main] INFO  o.s.d.j.r.query.QueryEnhancerFactory - Hibernate is in classpath; If applicable, HQL parser will be used.
+2025-07-05 01:00:48.178 [main] INFO  o.s.s.c.a.a.c.InitializeAuthenticationProviderBeanManagerConfigurer$InitializeAuthenticationProviderManagerConfigurer - Global AuthenticationManager configured with AuthenticationProvider bean with name authenticationProvider
+2025-07-05 01:00:48.178 [main] WARN  o.s.s.c.a.a.c.InitializeUserDetailsBeanManagerConfigurer$InitializeUserDetailsManagerConfigurer - Global AuthenticationManager configured with an AuthenticationProvider bean. UserDetailsService beans will not be used for username/password login. Consider removing the AuthenticationProvider bean. Alternatively, consider using the UserDetailsService in a manually instantiated DaoAuthenticationProvider.
+2025-07-05 01:00:48.728 [main] INFO  o.s.b.a.e.web.EndpointLinksResolver - Exposing 1 endpoint beneath base path '/actuator'
+2025-07-05 01:00:49.058 [main] INFO  o.s.b.w.e.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/'
+2025-07-05 01:00:49.068 [main] INFO  c.e.t.TaskManagementApplication - Started TaskManagementApplication in 4.507 seconds (process running for 4.729)
+2025-07-05 01:00:57.938 [http-nio-8080-exec-1] INFO  o.a.c.c.C.[Tomcat].[localhost].[/] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-07-05 01:00:57.938 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-07-05 01:00:57.939 [http-nio-8080-exec-1] INFO  o.s.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+2025-07-05 01:00:57.982 [http-nio-8080-exec-1] DEBUG c.e.t.service.UserDetailService - 📢 Поиск пользователя по email '1KarinaKrutih4343@suai.com' для аутентификации.
+2025-07-05 01:00:58.038 [http-nio-8080-exec-1] DEBUG c.e.t.service.UserDetailService - ✅ Пользователь '1KarinaKrutih4343@suai.com' (ID: 8) успешно найден для аутентификации.
+2025-07-05 01:00:58.042 [http-nio-8080-exec-1] DEBUG c.e.t.s.JwtAuthenticationFilter - Пользователь '1KarinaKrutih4343@suai.com' успешно аутентифицирован по JWT.
+2025-07-05 01:00:58.064 [http-nio-8080-exec-1] INFO  c.e.t.controller.TaskController - 📢 Получение задач, порученных пользователю '1KarinaKrutih4343@suai.com' (ID: 8).
+2025-07-05 01:00:58.065 [http-nio-8080-exec-1] DEBUG c.e.t.service.TaskService - 📢 Получение задач, порученных пользователю '1KarinaKrutih4343@suai.com' (ID: 8).
+2025-07-05 01:06:13.994 [SpringApplicationShutdownHook] INFO  o.s.o.j.LocalContainerEntityManagerFactoryBean - Closing JPA EntityManagerFactory for persistence unit 'default'
+2025-07-05 01:06:13.995 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - TaskManagerHikariPool - Shutdown initiated...
+2025-07-05 01:06:13.999 [SpringApplicationShutdownHook] INFO  com.zaxxer.hikari.HikariDataSource - TaskManagerHikariPool - Shutdown completed.
