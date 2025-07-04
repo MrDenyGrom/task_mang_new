@@ -3,136 +3,114 @@ package com.example.taskmanagement.model;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+import java.util.Arrays;
+
 /**
- * Перечисление, представляющее статус задачи.
+ * <p><b>Перечисление: Статус Задачи (Status)</b></p>
+ *
+ * <p>
+ *     Определяет полный жизненный цикл задачи, представляя собой конечный автомат.
+ *     Каждый элемент перечисления соответствует определенному этапу в рабочем процессе (workflow).
+ * </p>
+ *
+ * <p><b>Ключевые особенности:</b></p>
+ * <ul>
+ *     <li>Предоставляет удобные вспомогательные методы (например, {@code isCompleted()}).</li>
+ *     <li>Содержит простую логику рабочего процесса в методе {@link #nextStatus()}.</li>
+ *     <li>Обеспечивает безопасное преобразование из строки в константу через {@link #fromString(String)}.</li>
+ * </ul>
  */
 @Getter
 public enum Status {
     /**
-     * Статус "Ожидание".
+     * <p>Задача создана, но работа по ней еще не началась.</p>
      */
     WAITING("Ожидание"),
+
     /**
-     * Статус "В работе".
+     * <p>Задача находится в активной фазе выполнения.</p>
      */
     IN_PROGRESS("В работе"),
+
     /**
-     * Статус "Выполнено".
+     * <p>Задача успешно завершена.</p>
      */
     COMPLETED("Выполнено"),
+
     /**
-     * Статус "Отменено".
+     * <p>Выполнение задачи было отменено.</p>
      */
     CANCELLED("Отменено"),
+
     /**
-     * Статус "Приостановлено".
+     * <p>Работа по задаче временно приостановлена.</p>
      */
     ON_HOLD("Приостановлено"),
+
     /**
-     * Статус "Проверка".
+     * <p>Задача выполнена и ожидает проверки (например, со стороны автора или модератора).</p>
      */
     IN_REVIEW("Проверка"),
+
     /**
-     * Статус "Отклонено".
+     * <p>Результат выполнения задачи был проверен и отклонен.</p>
      */
     REJECTED("Отклонено");
 
-    /**
-     * Отображаемое имя статуса.
-     */
     private final String displayName;
 
-    /**
-     * Конструктор перечисления Status.
-     * @param displayName Отображаемое имя статуса.
-     */
     Status(String displayName) {
         this.displayName = displayName;
     }
 
     /**
-     * Возвращает значение перечисления Status, соответствующее заданному имени.
-     * @param status Имя статуса.
-     * @return Значение перечисления Status.
-     * @throws IllegalArgumentException Если статус {@code null} или не соответствует ни одному из значений перечисления.
-     * @throws NullPointerException if {@code status} is {@code null}
+     * <p><b>Фабричный Метод из Строки</b></p>
+     * <p>
+     *     Преобразует строковое представление статуса (например, "В работе")
+     *     в соответствующую константу перечисления, игнорируя регистр.
+     * </p>
+     * @param status Отображаемое имя статуса для поиска.
+     * @return Соответствующий экземпляр {@link Status}.
+     * @throws IllegalArgumentException если статус не найден.
      */
     @NotNull
     public static Status fromString(@NotNull String status) {
-        return java.util.Arrays.stream(Status.values())
+        return Arrays.stream(Status.values())
                 .filter(s -> s.displayName.equalsIgnoreCase(status))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Неизвестный статус: " + status));
     }
 
     /**
-     * Проверяет, является ли статус "Выполнено".
-     * @return {@code true}, если статус "Выполнено", иначе {@code false}.
+     * <p><b>Проверка на Статус 'Выполнено'</b></p>
+     * @return {@code true}, если текущий статус {@code COMPLETED}, иначе {@code false}.
      */
     public boolean isCompleted() {
         return this == COMPLETED;
     }
 
     /**
-     * Проверяет, является ли статус "В работе".
-     * @return {@code true}, если статус "В работе", иначе {@code false}.
+     * <p><b>Проверка на Статус 'В Работе'</b></p>
+     * @return {@code true}, если текущий статус {@code IN_PROGRESS}, иначе {@code false}.
      */
     public boolean isInProgress() {
         return this == IN_PROGRESS;
     }
 
     /**
-     * Проверяет, является ли статус "Отменено".
-     * @return {@code true}, если статус "Отменено", иначе {@code false}.
-     */
-    public boolean isCancelled() {
-        return this == CANCELLED;
-    }
-
-    /**
-     * Проверяет, является ли статус "Приостановлено".
-     * @return {@code true}, если статус "Приостановлено", иначе {@code false}.
-     */
-    public boolean isOnHold() {
-        return this == ON_HOLD;
-    }
-
-    /**
-     * Проверяет, является ли статус "Ожидание".
-     * @return {@code true}, если статус "Ожидание", иначе {@code false}.
-     */
-    public boolean isWaiting() {
-        return this == WAITING;
-    }
-
-    /**
-     * Проверяет, является ли статус "Проверка".
-     * @return {@code true}, если статус "Проверка", иначе {@code false}.
-     */
-    public boolean isInReview() {
-        return this == IN_REVIEW;
-    }
-
-    /**
-     * Проверяет, является ли статус "Отклонено".
-     * @return {@code true}, если статус "Отклонено", иначе {@code false}.
-     */
-    public boolean isRejected() {
-        return this == REJECTED;
-    }
-
-    /**
-     * Возвращает следующий статус в workflow.
-     * @return Следующий статус.
-     * @throws IllegalStateException Если текущий статус не имеет следующего состояния.
+     * <p><b>Переход к Следующему Статусу</b></p>
+     * <p>
+     *     Реализует логику простого рабочего процесса (workflow) для задачи.
+     *     Возвращает следующий логический статус или текущий, если он является терминальным.
+     * </p>
+     * @return Следующий статус в цепочке жизненного цикла.
      */
     public Status nextStatus() {
         return switch (this) {
             case WAITING -> IN_PROGRESS;
             case IN_PROGRESS -> IN_REVIEW;
             case IN_REVIEW -> COMPLETED;
-            case COMPLETED, CANCELLED, REJECTED, ON_HOLD -> this;
-            default -> throw new IllegalStateException("Неизвестный статус: " + this);
+            default -> this;
         };
     }
 }

@@ -2,55 +2,50 @@ package com.example.taskmanagement.dto;
 
 import com.example.taskmanagement.model.Priority;
 import com.example.taskmanagement.model.Status;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
 /**
- * DTO для обновления задачи.
+ * <p><b>DTO: Обновление Задачи</b></p>
+ *
+ * <p>
+ *     Объект для передачи данных при обновлении существующей задачи.
+ *     Позволяет клиенту изменять одно или несколько полей задачи.
+ * </p>
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Setter
+@Getter
+@RequiredArgsConstructor
+@Schema(description = "Схема для обновления существующей задачи")
 public class UpdateTaskDTO {
 
-    /**
-     * Заголовок задачи. Не может быть пустым и должен быть короче 100 символов.
-     */
+    @Schema(description = "Новый заголовок задачи", example = "Проверить отчет за Q3")
     @NotBlank(message = "Заголовок не может быть пустым")
     @Size(max = 100, message = "Заголовок должен быть короче 100 символов")
-    private String head;
+    private String title;
 
-    /**
-     * Описание задачи. Должно быть короче 1000 символов.
-     */
+    @Schema(description = "Новое описание задачи", example = "Детально сверить все цифры с данными из CRM.")
     @Size(max = 1000, message = "Описание должно быть короче 1000 символов")
     private String description;
 
-    /**
-     * Статус задачи. Не может быть пустым.
-     */
+    @Schema(description = "Новый статус задачи", example = "IN_PROGRESS")
     @NotNull(message = "Статус не может быть пустым")
     private Status status;
 
-    /**
-     * Приоритет задачи. Не может быть пустым.
-     */
+    @Schema(description = "Новый приоритет задачи", example = "HIGH")
     @NotNull(message = "Приоритет не может быть пустым")
     private Priority priority;
 
-    /**
-     * Имя пользователя исполнителя задачи.
-     */
+    @Schema(description = "Email нового исполнителя задачи", example = "4341@suai.com")
     private String executorUsername;
 
-    /**
-     * Срок выполнения задачи.
-     */
+    @Schema(description = "Новый срок выполнения задачи", example = "2025-06-30")
     private LocalDate dueDate;
 }

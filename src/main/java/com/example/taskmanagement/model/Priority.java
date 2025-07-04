@@ -3,51 +3,54 @@ package com.example.taskmanagement.model;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
 
+import java.util.Arrays;
+
 /**
- * Перечисление, представляющее приоритет задачи.
+ * <p><b>Перечисление: Приоритет Задачи (Priority)</b></p>
+ *
+ * <p>
+ *     Определяет степень важности и срочности задачи. Используется для
+ *     сортировки и визуального выделения задач в пользовательском интерфейсе.
+ * </p>
  */
 @Getter
 public enum Priority {
     /**
-     * Критический приоритет.
+     * <p>Критический. Требует немедленного внимания.</p>
      */
     CRITICAL("Критический"),
     /**
-     * Высокий приоритет.
+     * <p>Высокий. Задача имеет высокую важность.</p>
      */
     HIGH("Высокий"),
     /**
-     * Средний приоритет.
+     * <p>Средний. Стандартный приоритет для большинства задач.</p>
      */
     MEDIUM("Средний"),
     /**
-     * Низкий приоритет.
+     * <p>Низкий. Задача не является срочной.</p>
      */
     LOW("Низкий"),
     /**
-     * Наинизший приоритет.
+     * <p>Наинизший. Задача может быть выполнена в последнюю очередь.</p>
      */
     LOWEST("Наинизший");
 
-    /**
-     * Отображаемое имя приоритета.
-     */
     private final String displayName;
 
-    /**
-     * Конструктор перечисления Priority.
-     * @param displayName Отображаемое имя приоритета.
-     */
     Priority(String displayName) {
         this.displayName = displayName;
     }
 
     /**
-     * Возвращает значение перечисления Priority, соответствующее заданному имени.
-     * @param priorityName Имя приоритета.
-     * @return Значение перечисления Priority.
-     * @throws IllegalArgumentException Если имя приоритета {@code null}, пустое или не соответствует ни одному из значений перечисления.
-     * @throws NullPointerException if {@code priorityName} is {@code null}
+     * <p><b>Фабричный Метод из Строки</b></p>
+     * <p>
+     *     Преобразует строковое представление приоритета (например, "Высокий")
+     *     в соответствующую константу перечисления, игнорируя регистр.
+     * </p>
+     * @param priorityName Отображаемое имя приоритета для поиска.
+     * @return Соответствующий экземпляр {@link Priority}.
+     * @throws IllegalArgumentException если имя приоритета пустое или не найдено.
      */
     @NonNull
     public static Priority fromString(@NonNull String priorityName) {
@@ -55,49 +58,10 @@ public enum Priority {
             throw new IllegalArgumentException("Название приоритета не может быть пустым");
         }
         String normalizedPriorityName = priorityName.trim().toLowerCase();
-        return java.util.Arrays.stream(values())
+        return Arrays.stream(values())
                 .filter(priority -> priority.displayName.toLowerCase().equals(normalizedPriorityName))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Неизвестный приоритет: " + priorityName));
     }
 
-    /**
-     * Проверяет, является ли приоритет критическим.
-     * @return {@code true}, если приоритет критический, иначе {@code false}.
-     */
-    public boolean isCritical() {
-        return this == CRITICAL;
-    }
-
-    /**
-     * Проверяет, является ли приоритет высоким.
-     * @return {@code true}, если приоритет высокий, иначе {@code false}.
-     */
-    public boolean isHigh() {
-        return this == HIGH;
-    }
-
-    /**
-     * Проверяет, является ли приоритет средним.
-     * @return {@code true}, если приоритет средний, иначе {@code false}.
-     */
-    public boolean isMedium() {
-        return this == MEDIUM;
-    }
-
-    /**
-     * Проверяет, является ли приоритет низким.
-     * @return {@code true}, если приоритет низкий, иначе {@code false}.
-     */
-    public boolean isLow() {
-        return this == LOW;
-    }
-
-    /**
-     * Проверяет, является ли приоритет наинизшим.
-     * @return {@code true}, если приоритет наинизший, иначе {@code false}.
-     */
-    public boolean isLowest() {
-        return this == LOWEST;
-    }
 }

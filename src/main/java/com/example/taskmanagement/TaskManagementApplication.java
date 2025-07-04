@@ -3,70 +3,67 @@ package com.example.taskmanagement;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.annotations.info.License;
 import io.swagger.v3.oas.annotations.servers.Server;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
-import java.util.List;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 /**
- * Главный класс приложения для управления задачами.
+ * <p><b>Точка Входа в Приложение "Task Management API"</b></p>
+ *
+ * <p>
+ *     Этот класс является главным для всего Spring Boot приложения. Он выполняет
+ *     автоконфигурацию, сканирование компонентов и запуск встроенного веб-сервера.
+ * </p>
+ *
+ * <p><b>Конфигурация OpenAPI</b></p>
+ * <blockquote>
+ *     Класс также служит центральным узлом для высокоуровневой документации API
+ *     с помощью аннотации {@link OpenAPIDefinition}. Она определяет общую
+ *     информацию, которая отображается вверху страницы Swagger UI, такую как
+ *     название, версия, контактные данные и доступные серверы.
+ * </blockquote>
+ *
+ * @see org.springframework.boot.autoconfigure.SpringBootApplication
+ * @see io.swagger.v3.oas.annotations.OpenAPIDefinition
  */
 @SpringBootApplication
+@EnableJpaAuditing
 @OpenAPIDefinition(
         info = @Info(
-                title = "API управления задачами",
-                version = "1.1",
-                description = "REST API для управления задачами, пользователями и комментариями",
+                title = "Task Management API",
+                version = "1.1.1",
+                description = "REST API для управления задачами, пользователями и комментариями.",
                 contact = @Contact(
-                        name = "Служба поддержки",
+                        name = "Команда разработки (Ткаченко Даниил и Крутых Карина, группа 4343)",
                         email = "danillevgentk@mail.ru",
-                        url = "https://spb.hh.ru/resume/153de787ff0e1ae19b0039ed1f6a686a727778"
+                        url = "https://pro.guap.ru/inside/profile/46020"
+                ),
+                license = @License(
+                        name = "Apache 2.0",
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.html"
                 )
         ),
         servers = {
-                @Server(url = "http://localhost:8080", description = "Локальное окружение"),
-                @Server(url = "https://api.example.com", description = "Рабочее окружение")
+                @Server(url = "http://localhost:8080", description = "Локальный сервер для разработки"),
+                @Server(url = "https://api.prod.example.com", description = "Развернутый сервер")
         }
 )
 public class TaskManagementApplication {
 
-    private static final Logger log = LoggerFactory.getLogger(TaskManagementApplication.class);
-
     /**
-     * Точка входа в приложение.
-     * @param args Аргументы командной строки.
+     * <p><b>Запуск Приложения</b></p>
+     *
+     * <p>
+     *     Инициализирует контекст Spring ApplicationContext и запускает
+     *     встроенный веб-сервер (Tomcat), делая приложение
+     *     доступным для обработки HTTP-запросов.
+     * </p>
+     *
+     * @param args Аргументы командной строки, переданные при запуске.
      */
     public static void main(String[] args) {
         SpringApplication.run(TaskManagementApplication.class, args);
-        log.info("API управления задачами запущено");
-    }
-
-    /**
-     * Конфигурация CORS.
-     */
-    @Configuration
-    public static class WebConfig implements WebMvcConfigurer {
-
-        private final List<String> allowedOrigins = List.of("http://localhost:8080", "http://frontend_server");
-
-        /**
-         * Настраивает CORS mappings.
-         * @param registry Реестр CORS.
-         */
-        @Override
-        public void addCorsMappings(CorsRegistry registry) {
-            registry.addMapping("/**")
-                    .allowedOrigins(allowedOrigins.toArray(String[]::new))
-                    .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                    .allowedHeaders("*")
-                    .allowCredentials(true);
-            log.info("CORS конфигурация загружена. Разрешённые origin: {}", allowedOrigins);
-        }
     }
 }

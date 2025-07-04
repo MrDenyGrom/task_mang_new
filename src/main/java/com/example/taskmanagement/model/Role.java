@@ -3,105 +3,96 @@ package com.example.taskmanagement.model;
 import lombok.Getter;
 import org.springframework.lang.NonNull;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 /**
- * Перечисление, представляющее роль пользователя.
+ * <p><b>Перечисление: Роль Пользователя (Role)</b></p>
+ *
+ * <p>
+ *     Определяет уровни доступа и права пользователей в системе.
+ *     Каждая роль имеет числовой уровень прав для удобного и безопасного сравнения.
+ * </p>
+ *
+ * <p><b>Ключевые архитектурные решения:</b></p>
+ * <blockquote>
+ *     <p><b>1. Надежная иерархия прав:</b> Вместо ненадежного метода {@code ordinal()}
+ *     используется явное поле {@code powerLevel}. Это делает систему прав устойчивой
+ *     к изменению порядка объявления констант в перечислении.</p>
+ *
+ *     <p><b>2. Производительный поиск:</b> Для метода {@link #fromString(String)} используется
+ *     статическая, предварительно кэшированная {@link Map}, что обеспечивает
+ *     поиск роли за константное время O(1) и избегает перебора массива на каждый вызов.</p>
+ * </blockquote>
  */
 @Getter
 public enum Role {
     /**
-     * Роль пользователя.
+     * <p><b>Администратор (уровень 0):</b> Максимальные права доступа в системе.</p>
      */
-    USER("Пользователь"),
+    ADMIN("Администратор", 0),
     /**
-     * Роль администратора.
+     * <p><b>Модератор (уровень 1):</b> Расширенные права, например, для управления контентом.</p>
      */
-    ADMIN("Администратор"),
+    MODERATOR("Модератор", 1),
     /**
-     * Роль модератора.
+     * <p><b>Пользователь (уровень 2):</b> Стандартные права для аутентифицированных пользователей.</p>
      */
-    MODERATOR("Модератор"),
+    USER("Пользователь", 2),
     /**
-     * Роль гостя.
+     * <p><b>Гость (уровень 3):</b> Минимальные права для неаутентифицированных сессий.</p>
      */
-    GUEST("Гость");
+    GUEST("Гость", 3);
 
-    /**
-     * Отображаемое имя роли.
-     */
     private final String displayName;
+    private final int powerLevel;
 
-    /**
-     * Конструктор перечисления Role.
-     * @param displayName Отображаемое имя роли.
-     */
-    Role(String displayName) {
+    private static final Map<String, Role> NAME_MAP = Arrays.stream(values())
+            .collect(Collectors.toMap(role -> role.displayName.toLowerCase(), Function.identity()));
+
+    Role(String displayName, int powerLevel) {
         this.displayName = displayName;
+        this.powerLevel = powerLevel;
     }
 
     /**
-     * Возвращает значение перечисления Role, соответствующее заданному имени.
-     * @param roleName Имя роли.
-     * @return Значение перечисления Role.
-     * @throws IllegalArgumentException Если имя роли {@code null}, пустое или не соответствует ни одному из значений перечисления.
+     * <p><b>Получение Роли из Строки (Оптимизированное)</b></p>
+     * <p>
+     *     Безопасно и производительно получает экземпляр {@link Role}
+     *     из его строкового представления, игнорируя регистр.
+     * </p>
+     * @param roleName Отображаемое имя роли (например, "Администратор").
+     * @return Соответствующий экземпляр {@link Role}.
+     * @throws IllegalArgumentException если имя роли пустое или не найдено.
      */
     @NonNull
     public static Role fromString(@NonNull String roleName) {
-        if (roleName.isBlank()) {
+        String normalized = roleName.trim().toLowerCase();
+        if (normalized.isEmpty()) {
             throw new IllegalArgumentException("Название роли не может быть пустым");
         }
-        String normalizedRoleName = roleName.trim().toLowerCase();
-        return java.util.Arrays.stream(values())
-                .filter(role -> role.displayName.toLowerCase().equals(normalizedRoleName))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Неизвестная роль: " + roleName));
-
+        Role role = NAME_MAP.get(normalized);
+        if (role == null) {
+            throw new IllegalArgumentException("Неизвестная роль: " + roleName);
+        }
+        return role;
     }
 
     /**
-     * Проверяет, является ли роль администраторской.
-     * @return {@code true}, если роль администраторская, иначе {@code false}.
-     */
-    public boolean isAdmin() {
-        return this == ADMIN;
-    }
-
-    /**
-     * Проверяет, является ли роль пользователя.
-     * @return {@code true}, если роль пользователя, иначе {@code false}.
-     */
-    public boolean isUser() {
-        return this == USER;
-    }
-
-    /**
-     * Проверяет, является ли роль модераторской.
-     * @return {@code true}, если роль модераторская, иначе {@code false}.
-     */
-    public boolean isModerator() {
-        return this == MODERATOR;
-    }
-
-    /**
-     * Проверяет, является ли роль гостевой.
-     * @return {@code true}, если роль гостевая, иначе {@code false}.
-     */
-    public boolean isGuest() {
-        return this == GUEST;
-    }
-
-    /**
-     * Проверяет, имеет ли текущая роль права равные или выше, чем заданная роль.
-     * @param otherRole Роль для сравнения.
-     * @return {@code true}, если текущая роль имеет права равные или выше, чем заданная роль, иначе {@code false}.
+     * <p><b>Проверка Уровня Доступа</b></p>
+     * <p>
+     *     Сравнивает уровень прав текущей роли с другой, используя поле {@code powerLevel}.
+     *     Чем меньше значение {@code powerLevel}, тем выше права.
+     * </p>
+     * @param otherRole Роль, с которой производится сравнение.
+     * @return {@code true}, если текущая роль имеет права, равные или превышающие права {@code otherRole}.
      */
     public boolean hasPermissionsOfOrHigherThan(@NonNull Role otherRole) {
-        return this.ordinal() <= otherRole.ordinal();
+        return this.powerLevel <= otherRole.powerLevel;
     }
 
-    /**
-     * Возвращает отображаемое имя роли.
-     * @return Отображаемое имя роли.
-     */
     @Override
     public String toString() {
         return displayName;

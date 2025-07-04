@@ -1,37 +1,67 @@
 package com.example.taskmanagement.config;
 
 import com.example.taskmanagement.model.AppUser;
-import com.example.taskmanagement.model.Role;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
- * Реализация интерфейса {@link UserDetails} для использования с Spring Security.
- *  Этот класс инкапсулирует {@link AppUser} и предоставляет информацию о пользователе,
- *  необходимую для аутентификации и авторизации.
+ * <p><b>Адаптер Пользователя для Spring Security</b></p>
+ *
+ * <p>
+ *     Представляет собой неизменяемую (immutable) оболочку (wrapper) над доменной моделью {@link AppUser},
+ *     адаптируя ее под контракт интерфейса {@link UserDetails} из Spring Security.
+ *     Использование {@code java.lang.Record} обеспечивает лаконичность и потокобезопасность.
+ * </p>
+ *
+ * <p>
+ *     Этот класс служит мостом между бизнес-логикой ({@code AppUser}) и фреймворком
+ *     безопасности, предоставляя последнему необходимую информацию о пользователе
+ *     в стандартизированном виде.
+ * </p>
+ *
+ * @param appUser Оригинальный объект сущности пользователя. Не может быть {@code null}.
+ *
+ * @see org.springframework.security.core.userdetails.UserDetails
+ * @see com.example.taskmanagement.model.AppUser
  */
 public record UserDetail(AppUser appUser) implements UserDetails {
 
-    /**
-     * Получение списка ролей пользователя.
-     *
-     * @return Коллекция полномочий пользователя.
-     */
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        Role userRole = appUser.getRole();
-        String roleName = "ROLE_" + userRole.name();
-        return List.of(new SimpleGrantedAuthority(roleName));
+    private static final String ROLE_PREFIX = "ROLE_";
+
+    public UserDetail {
+        Objects.requireNonNull(appUser, "Объект AppUser не может быть null");
     }
 
     /**
-     * Получение пароля пользователя.
+     * <p><b>Полномочия (Роли) Пользователя</b></p>
      *
-     * @return Пароль пользователя.
+     * <p>
+     *     Возвращает коллекцию ролей, предоставленных пользователю. Роль из
+     *     {@link AppUser} преобразуется в {@link SimpleGrantedAuthority}
+     *     с обязательным префиксом {@code ROLE_}, как того требует Spring Security.
+     * </p>
+     *
+     * @return Коллекция из одного полномочия или пустая коллекция, если роль не задана. Никогда не {@code null}.
+     */
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Optional.ofNullable(appUser.getRole())
+                .map(role -> ROLE_PREFIX + role.name())
+                .map(SimpleGrantedAuthority::new)
+                .map(Collections::singletonList)
+                .orElse(Collections.emptyList());
+    }
+
+    /**
+     * <p><b>Пароль Пользователя</b></p>
+     *
+     * @return Хешированный пароль пользователя из объекта {@link AppUser}.
      */
     @Override
     public String getPassword() {
@@ -39,9 +69,11 @@ public record UserDetail(AppUser appUser) implements UserDetails {
     }
 
     /**
-     * Получение имени пользователя.
+     * <p><b>Имя Пользователя (Логин)</b></p>
      *
-     * @return почта пользователя.
+     * <p>В качестве уникального идентификатора для аутентификации используется email.</p>
+     *
+     * @return Email пользователя.
      */
     @Override
     public String getUsername() {
@@ -49,9 +81,9 @@ public record UserDetail(AppUser appUser) implements UserDetails {
     }
 
     /**
-     * Указывает, не истек ли срок действия учетной записи пользователя.
+     * <p><b>Статус: Срок Действия Учетной Записи</b></p>
      *
-     * @return {@code true} если учетная запись не истекла, {@code false} в противном случае.
+     * @return {@code true}, так как в данной реализации учетные записи бессрочны.
      */
     @Override
     public boolean isAccountNonExpired() {
@@ -59,19 +91,19 @@ public record UserDetail(AppUser appUser) implements UserDetails {
     }
 
     /**
-     * Указывает, не заблокирована ли учетная запись пользователя.
+     * <p><b>Статус: Блокировка Учетной Записи</b></p>
      *
-     * @return {@code true} если учетная запись не заблокирована, {@code false} в противном случае.
+     * @return {@code true}, если учетная запись не заблокирована.
      */
     @Override
     public boolean isAccountNonLocked() {
-        return !appUser.isLocked(); }
-
+        return !appUser.isLocked();
+    }
 
     /**
-     * Указывает, не истек ли срок действия учетных данных пользователя (например, пароля).
+     * <p><b>Статус: Срок Действия Учетных Данных</b></p>
      *
-     * @return {@code true} если учетные данные не истекли, {@code false} в противном случае.
+     * @return {@code true}, так как в данной реализации пароли бессрочны.
      */
     @Override
     public boolean isCredentialsNonExpired() {
@@ -79,9 +111,9 @@ public record UserDetail(AppUser appUser) implements UserDetails {
     }
 
     /**
-     * Указывает, включена ли учетная запись пользователя.
+     * <p><b>Статус: Активация Учетной Записи</b></p>
      *
-     * @return {@code true} если учетная запись включена, {@code false} в противном случае.
+     * @return {@code true}, если учетная запись активирована (например, через email).
      */
     @Override
     public boolean isEnabled() {

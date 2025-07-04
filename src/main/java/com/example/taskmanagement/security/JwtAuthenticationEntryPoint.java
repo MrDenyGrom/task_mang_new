@@ -1,34 +1,57 @@
 package com.example.taskmanagement.security;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity.*;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Точка входа для аутентификации JWT.
- * Этот класс реализует интерфейс {@link AuthenticationEntryPoint} и используется для обработки
- * несанкционированных запросов, возвращая ответ об ошибке 401 Unauthorized.
+ * <p><b>Точка Входа для Обработки Ошибок Аутентификации</b></p>
+ *
+ * <p>
+ *     Компонент, который перехватывает запросы к защищенным ресурсам от
+ *     <b>неаутентифицированных</b> пользователей (то есть тех, кто не предоставил
+ *     валидный токен или не предоставил его вовсе).
+ * </p>
+ *
+ * <p><b>Основная задача:</b></p>
+ * <blockquote>
+ *     Прервать стандартное поведение Spring Security (которое обычно перенаправляет
+ *     на страницу логина) и вместо этого вернуть клиенту четкий и понятный
+ *     ответ с кодом <b>401 Unauthorized</b>. Это является стандартом для stateless REST API.
+ * </blockquote>
+ *
+ * @see org.springframework.security.web.AuthenticationEntryPoint
+ * @see org.springframework.security.config.annotation.web.builders.HttpSecurity#exceptionHandling()
  */
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     /**
-     * Начинает процесс аутентификации.
-     * Этот метод вызывается, когда неаутентифицированный пользователь пытается получить доступ к защищенному ресурсу.
+     * <p><b>Обработка Запроса без Аутентификации</b></p>
      *
-     * @param request       {@link HttpServletRequest}  HTTP-запрос.
-     * @param response      {@link HttpServletResponse} HTTP-ответ.
-     * @param authException {@link AuthenticationException} Исключение аутентификации.
-     * @throws IOException Если возникает ошибка ввода-вывода при отправке ответа об ошибке.
+     * <p>
+     *     Этот метод вызывается Spring Security каждый раз, когда {@link AuthenticationException}
+     *     возникает в процессе обработки запроса к защищенному эндпоинту.
+     * </p>
+     *
+     * @param request       Входящий HTTP-запрос.
+     * @param response      HTTP-ответ, в который будет записана ошибка.
+     * @param authException Исключение, вызвавшее ошибку аутентификации.
+     * @throws IOException в случае проблем с записью в {@code response}.
      */
     @Override
-    public void commence(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
+    public void commence(@NotNull HttpServletRequest request,
+                         @NotNull HttpServletResponse response,
                          @NotNull AuthenticationException authException) throws IOException {
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Неавторизованный доступ: Недействительные учетные данные или токен");
+        response.sendError(
+                HttpServletResponse.SC_UNAUTHORIZED,
+                "Ошибка аутентификации: доступ запрещен. Требуется валидный JWT токен."
+        );
     }
 }

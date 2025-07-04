@@ -1,98 +1,112 @@
 package com.example.taskmanagement.security;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 /**
- * Поставщик токенов JWT.
- * Этот класс отвечает за генерацию, проверку и извлечение информации из токенов JWT.
+ * <p><b>Провайдер JWT Токенов</b></p>
+ *
+ * <p>
+ *     Центральный компонент, отвечающий за все операции, связанные с
+ *     жизненным циклом JSON Web Tokens (JWT):
+ * </p>
+ * <ul>
+ *     <li><b>Генерация:</b> Создание новых токенов для аутентифицированных пользователей.</li>
+ *     <li><b>Парсинг:</b> Извлечение данных (claims), таких как email, из строки токена.</li>
+ *     <li><b>Валидация:</b> Проверка подлинности и срока действия токена.</li>
+ * </ul>
  */
-@SuppressWarnings("deprecation")
 @Component
+@Slf4j
 public class JwtTokenProvider {
 
-    private static final Logger log = LoggerFactory.getLogger(JwtTokenProvider.class);
-
     @Value("${jwt.secret}")
-    private String jwtSecret;
+    private String jwtSecretString;
 
-    /**
-     * Время жизни JWT токена в миллисекундах.
-     */
     @Getter
     @Value("${jwt.expiration}")
     private long jwtExpirationMs;
 
+    private SecretKey jwtSecretKey;
+
     /**
-     * Генерирует JWT токен для заданного адреса электронной почты.
+     * <p><b>Инициализация Секретного Ключа</b></p>
+     * <p>
+     *     Метод, который вызывается после внедрения зависимостей. Он преобразует
+     *     строковый секрет из конфигурации в криптографически безопасный
+     *     объект {@link SecretKey} для подписи и проверки токенов.
+     * </p>
+     */
+    @PostConstruct
+    protected void init() {
+        this.jwtSecretKey = Keys.hmacShaKeyFor(jwtSecretString.getBytes());
+    }
+
+    /**
+     * <p><b>Генерация Токена</b></p>
      *
-     * @param email Адрес электронной почты пользователя.
-     * @return Сгенерированный JWT токен.
+     * @param email Уникальный идентификатор пользователя (email), который будет закодирован в токене.
+     * @return Сгенерированный и подписанный JWT в виде строки.
      */
     public String generateToken(@NotNull String email) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);
 
-        String token = Jwts.builder()
+        return Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .signWith(jwtSecretKey, SignatureAlgorithm.HS512)
                 .compact();
-
-        log.info("Сгенерирован JWT токен для пользователя {}", email);
-        return token;
     }
 
     /**
-     * Извлекает адрес электронной почты из JWT токена.
+     * <p><b>Извлечение Email из Токена</b></p>
      *
-     * @param token JWT токен.
-     * @return Адрес электронной почты, извлеченный из токена.
-     * @throws JwtException Если токен недействителен.
+     * @param token JWT в виде строки.
+     * @return Email пользователя (subject из claims).
      */
     public String getEmailFromJWT(@NotNull String token) {
-        try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(jwtSecret)
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(jwtSecretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
 
-            String email = claims.getSubject();
-            log.debug("Получен email из JWT токена: {}", email);
-            return email;
-        } catch (JwtException e) {
-            log.error("Ошибка при извлечении email из JWT: {}", e.getMessage());
-            throw new JwtException("Невалидный JWT токен");
-        }
+        return claims.getSubject();
     }
 
     /**
-     * Проверяет действительность JWT токена.
+     * <p><b>Валидация Токена</b></p>
+     * <p>
+     *     Проверяет, является ли токен валидным: корректно ли он подписан
+     *     и не истек ли его срок действия.
+     * </p>
      *
-     * @param token JWT токен.
-     * @return true, если токен действителен, иначе false.
+     * @param token JWT в виде строки.
+     * @return {@code true}, если токен валиден, иначе {@code false}.
      */
     public boolean validateToken(@NotNull String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(jwtSecret)
-                    .build()
-                    .parseClaimsJws(token);
-            log.debug("JWT токен валиден");
+            Jwts.parserBuilder().setSigningKey(jwtSecretKey).build().parseClaimsJws(token);
             return true;
+        } catch (MalformedJwtException ex) {
+            log.error("Некорректная структура JWT токена: {}", ex.getMessage());
         } catch (ExpiredJwtException ex) {
-            log.warn("JWT токен просрочен: {}", ex.getMessage());
-        } catch (JwtException ex) {
-            log.error("Ошибка валидации JWT токена: {}", ex.getMessage());
+            log.warn("Срок действия JWT токена истек: {}", ex.getMessage());
+        } catch (UnsupportedJwtException ex) {
+            log.error("Неподдерживаемый формат JWT токена: {}", ex.getMessage());
+        } catch (IllegalArgumentException ex) {
+            log.error("Пустая или некорректная строка JWT токена: {}", ex.getMessage());
         }
         return false;
     }

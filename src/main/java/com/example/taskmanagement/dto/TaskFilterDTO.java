@@ -2,57 +2,49 @@ package com.example.taskmanagement.dto;
 
 import com.example.taskmanagement.model.Priority;
 import com.example.taskmanagement.model.Status;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
 /**
- * DTO для фильтрации задач.
+ * <p><b>DTO: Фильтр для Поиска Задач</b></p>
+ *
+ * <p>
+ *     Агрегирует все возможные параметры для динамического поиска и фильтрации задач.
+ *     Все поля являются необязательными. Сервер будет строить запрос на основе
+ *     тех полей, которые были переданы клиентом.
+ * </p>
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Setter
+@Getter
+@RequiredArgsConstructor
+@Schema(description = "Объект с необязательными параметрами для фильтрации и поиска задач")
 public class TaskFilterDTO {
 
-    /**
-     * Заголовок задачи.
-     */
-    private String head;
+    @Schema(description = "Фильтр по частичному совпадению в заголовке", example = "Отчет")
+    private String title;
 
-    /**
-     * Описание задачи.
-     */
+    @Schema(description = "Фильтр по частичному совпадению в описании", example = "CRM")
     private String description;
 
-    /**
-     * Статус задачи.
-     */
+    @Schema(description = "Фильтр по точному статусу задачи", example = "IN_PROGRESS")
     private Status status;
 
-    /**
-     * Приоритет задачи.
-     */
+    @Schema(description = "Фильтр по точному приоритету задачи", example = "HIGH")
     private Priority priority;
 
-    /**
-     * Имя пользователя автора задачи.
-     */
+    @Schema(description = "Фильтр по email автора задачи", example = "4343@suai.com")
     private String authorUsername;
 
-    /**
-     * Имя пользователя исполнителя задачи.
-     */
+    @Schema(description = "Фильтр по email исполнителя задачи", example = "4341@suai.com")
     private String executorUsername;
 
-    /**
-     * Дата начала периода для фильтрации.
-     */
+    @Schema(description = "Начальная дата для фильтрации по сроку выполнения (включительно)", example = "2025-06-30")
     private LocalDate startDate;
 
-    /**
-     * Дата окончания периода для фильтрации.
-     */
+    @Schema(description = "Конечная дата для фильтрации по сроку выполнения (включительно)", example = "2025-07-29")
     private LocalDate endDate;
 }

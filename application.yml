@@ -34,7 +34,7 @@ spring:
 cors:
   allowed-origins: http://localhost:8080
 jwt:
-  secret: ${JWT_SECRET}
+  secret: dfff8aca0a650c4fc417595d989b09d8eaa00b216facb53e9f9d97191207379565b943d94351eaecbeec3ded94a75ab1a99af4ced4b084e34b2bd94a1ccda77b
   expiration: 36000000
   refreshExpiration: 86400000
   prefix: Bearer
@@ -56,3 +56,6 @@ server:
 swagger:
   server:
     url: http://localhost:8080
+app:
+  cors:
+    allowed-origins: http://localhost:8080, http://localhost:8443
